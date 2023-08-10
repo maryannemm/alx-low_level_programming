@@ -6,8 +6,8 @@
  */
 int main(void)
 {
-    /* Use the puts function to print the message */
-    puts("Programming is like building a multilingual puzzle,");
+    /* Use the printf function to print the message */
+    printf("with proper grammar, but the outcome is a piece of art,\n");
     /* Return 0 to indicate successful completion */
     return (0);
 }

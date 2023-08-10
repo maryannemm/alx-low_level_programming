@@ -1,12 +1,2 @@
 #!/bin/bash
-
-# Check if $CFILE is set
-if [ -z "$CFILE" ]; then
-  echo "Error: \$CFILE variable is not set."
-  exit 1
-fi
-
-# Run the preprocessor and save the output to 'c' file
-gcc -E "$CFILE" -o c
-
-echo "Preprocessing complete. Output saved in 'c' file."
+gcc -E $CFILE > c

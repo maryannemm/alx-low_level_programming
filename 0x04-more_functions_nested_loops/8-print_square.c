@@ -1,20 +1,22 @@
 #include "main.h"
 
 /**
- * print_square - prints a square in the terminal.
+ * print_square - Prints a square of a specified size using '#'.
  * @size: The size of the square.
  */
 void print_square(int size)
 {
+    int row, column;
+
     if (size <= 0)
     {
         _putchar('\n');
         return;
     }
 
-    for (int row = 0; row < size; row++)
+    for (row = 1; row <= size; row++)
     {
-        for (int col = 0; col < size; col++)
+        for (column = 1; column <= size; column++)
         {
             _putchar('#');
         }

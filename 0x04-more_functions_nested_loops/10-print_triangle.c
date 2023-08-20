@@ -1,8 +1,8 @@
 #include "main.h"
 
 /**
- * print_triangle - prints a triangle in the terminal.
- * @size: The size of the triangle.
+ * print_triangle - prints a triangle followed by a new line
+ * @size: the size of the triangle
  */
 void print_triangle(int size)
 {
@@ -14,16 +14,10 @@ void print_triangle(int size)
 
     for (int row = 1; row <= size; row++)
     {
-        for (int space = 1; space <= size - row; space++)
-        {
+        for (int space = size - row; space > 0; space--)
             _putchar(' ');
-        }
-
         for (int hash = 1; hash <= row; hash++)
-        {
             _putchar('#');
-        }
-
         _putchar('\n');
     }
 }

@@ -26,7 +26,7 @@ int calculate_sqrt(int n, int guess)
  * _sqrt_recursion - Returns the natural square root of a number.
  * @n: The number for which the square root is to be calculated.
  *
- * Return: The natural square root of n. If n doesn't have a natural square root, return -1.
+ * Return: The natural square root of n.
  */
 int _sqrt_recursion(int n)
 {

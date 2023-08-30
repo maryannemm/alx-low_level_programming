@@ -38,7 +38,7 @@ int wildcmp_recursive(char *s1, char *s2)
  * wildcmp - Compares two strings with possible wildcards.
  * @s1: The first string to compare.
  * @s2: The second string to compare.
- *
+ * Return: 1 if strings can be considered identical, otherwise 0.
  */
 int wildcmp(char *s1, char *s2)
 {

@@ -3,58 +3,94 @@
 #include "variadic_functions.h"
 
 /**
- * print_all - prints anything.
- * @format: a list of types of arguments passed to the function
+ * printf_char - printfs a char from var args
+ *
+ * @list: va_list to print from
+ *
+ * Return: void
+ */
+void printf_char(va_list list)
+{
+	printf("%c", (char) va_arg(list, int));
+}
+
+/**
+ * printf_int - printfs an int from var args
+ *
+ * @list: va_list to print from
+ *
+ * Return: void
+ */
+void printf_int(va_list list)
+{
+	printf("%d", va_arg(list, int));
+}
+
+/**
+ * printf_float - printfs a float from var args
+ *
+ * @list: va_list to print from
+ *
+ * Return: void
+ */
+void printf_float(va_list list)
+{
+	printf("%f", (float) va_arg(list, double));
+}
+
+/**
+ * printf_string - printfs a string from var args
+ *
+ * @list: va_list to print from
+ *
+ * Return: void
+ */
+void printf_string(va_list list)
+{
+	char *str = va_arg(list, char*);
+
+	while (str != NULL)
+	{
+		printf("%s", str);
+		return;
+	}
+	printf("(nil)");
+}
+
+
+/**
+ * print_all - prints various types given a format string for the arguments
+ *
+ * @format: string containing type information for args
  *
  * Return: void
  */
 void print_all(const char * const format, ...)
 {
-	va_list args;
-	unsigned int i = 0;
-	char *str;
-	int first_format = 1;
+	const char *ptr;
+	va_list list;
+	funckey key[4] = { {printf_char, 'c'}, {printf_int, 'i'},
+			   {printf_float, 'f'}, {printf_string, 's'} };
+	int keyind = 0, notfirst = 0;
 
-	va_start(args, format);
-
-	while (format && format[i])
+	ptr = format;
+	va_start(list, format);
+	while (format != NULL && *ptr)
 	{
-		if (format[i] == 'c' || format[i] == 'i' || format[i] == 'f' || format[i] == 's')
+		if (key[keyind].spec == *ptr)
 		{
-			if (!first_format)
+			if (notfirst)
 				printf(", ");
-			first_format = 0;
-
-			switch (format[i])
-			{
-				case 'c':
-					printf("%c", va_arg(args, int));
-					break;
-				case 'i':
-					printf("%d", va_arg(args, int));
-					break;
-				case 'f':
-					printf("%f", va_arg(args, double));
-					break;
-				case 's':
-					str = va_arg(args, char *);
-					if (str == NULL)
-						printf("(nil)");
-					else
-						printf("%s", str);
-					break;
-			}
+			notfirst = 1;
+			key[keyind].f(list);
+			ptr++;
+			keyind = -1;
 		}
-
-		i++;
-
-		/* Check if there's another format specifier */
-		if (format[i])
-			continue;
-
-		break;
+		keyind++;
+		ptr += keyind / 4;
+		keyind %= 4;
 	}
 	printf("\n");
-	va_end(args);
-}
 
+	va_end(list);
+}

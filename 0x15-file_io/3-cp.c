@@ -1,75 +1,110 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 1024
+#define BUFSIZE 1024
 
 /**
- * copy_file - Copy the content of one file to another.
- * @from_fd: File descriptor of the source file.
- * @to_fd: File descriptor of the destination file.
+ * _close - close a file descriptor and print an error message upon failure
+ * @fd: the file descriptor to close
+ *
+ * Return: 0 upon success, -1 upon failure
  */
-void copy_file(int from_fd, int to_fd)
+int _close(int fd)
 {
-	ssize_t bytes_read;
-	char buffer[BUFFER_SIZE];
+	if (!close(fd))
+		return (0);
+	dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
+	return (-1);
 
-	while ((bytes_read = read(from_fd, buffer, BUFFER_SIZE)) > 0)
+}
+
+/**
+ * _read - read from a file and print an error message upon failure
+ * @filename: the name of the file to read from
+ * @fd: the file descriptor to read from
+ * @buf: the buffer to write to
+ * @count: the number of bytes to read
+ *
+ * Return: The number of bytes read, or -1 upon failure
+ */
+ssize_t _read(const char *filename, int fd, char *buf, size_t count)
+{
+	ssize_t bytes_read = read(fd, buf, count);
+
+	if (bytes_read > -1)
+		return (bytes_read);
+	dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", filename);
+	return (-1);
+}
+
+/**
+ * _write - write to a file and print an error message upon failure
+ * @filename: the name of the file to write to
+ * @fd: the file descriptor to write to
+ * @buf: the buffer to read from
+ * @count: the number of bytes to write
+ *
+ * Return: The number of bytes written, or -1 upon failure
+ */
+ssize_t _write(const char *filename, int fd, const char *buf, size_t count)
+{
+	ssize_t bytes_written = write(fd, buf, count);
+
+	if (bytes_written > -1)
+		return (bytes_written);
+	dprintf(STDERR_FILENO, "Error: Can't write to %s\n", filename);
+	return (-1);
+}
+
+/**
+ * main - copy a file's contents to another file
+ * @argc: the argument count
+ * @argv: the argument values
+ *
+ * Return: Always 1
+ */
+int main(int argc, const char *argv[])
+{
+	int fd_in, fd_out;
+	ssize_t bytes_read;
+	char buffer[BUFSIZE];
+
+	if (argc != 3)
 	{
-		if (write(to_fd, buffer, bytes_read) != bytes_read)
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+		exit(97);
+	}
+	fd_in = open(argv[1], O_RDONLY);
+	if (fd_in < 0)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+	fd_out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0664);
+	if (fd_out < 0)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		_close(fd_in);
+		exit(99);
+	}
+	while ((bytes_read = _read(argv[1], fd_in, buffer, BUFSIZE)))
+	{
+		if (bytes_read < 0)
 		{
-			dprintf(2, "Error: Can't write to the destination file\n");
+			_close(fd_in);
+			_close(fd_out);
+			exit(98);
+		}
+		if (_write(argv[2], fd_out, buffer, bytes_read) < 0)
+		{
+			_close(fd_in);
+			_close(fd_out);
 			exit(99);
 		}
 	}
-
-	if (bytes_read < 0)
-	{
-		dprintf(2, "Error: Can't read from the source file\n");
-		exit(98);
-	}
-}
-
-int main(int ac, char **av)
-{
-	int from_fd, to_fd;
-
-	if (ac != 3)
-	{
-		dprintf(2, "Usage: %s file_from file_to\n", av[0]);
-		exit(97);
-	}
-
-	from_fd = open(av[1], O_RDONLY);
-	if (from_fd == -1)
-	{
-		dprintf(2, "Error: Can't read from file %s\n", av[1]);
-		exit(98);
-	}
-
-	to_fd = open(av[2], O_WRONLY | O_CREAT | O_TRUNC, 0664);
-	if (to_fd == -1)
-	{
-		dprintf(2, "Error: Can't write to file %s\n", av[2]);
-		close(from_fd);
-		exit(99);
-	}
-
-	copy_file(from_fd, to_fd);
-
-	if (close(from_fd) == -1)
-	{
-		dprintf(2, "Error: Can't close fd %d\n", from_fd);
+	if ((_close(fd_in) | _close(fd_out)) < 0)
 		exit(100);
-	}
-
-	if (close(to_fd) == -1)
-	{
-		dprintf(2, "Error: Can't close fd %d\n", to_fd);
-		exit(100);
-	}
-
 	return (0);
 }
-

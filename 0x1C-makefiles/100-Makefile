@@ -5,12 +5,28 @@ SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 RM = /bin/rm -f
 
+.PHONY: all clean oclean fclean re check
+
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(OBJ) -o $(NAME)
 
-$(OBJ): $(SRC)
+clean:
+	$(RM) *~ $(NAME)
+
+oclean:
+	$(RM) $(OBJ)
+
+fclean: clean oclean
+	$(RM) $(NAME)
+
+re: fclean all
+
+check:
+	@make -q all || true
+
+%.o: %.c m.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
@@ -24,4 +40,5 @@ fclean: clean oclean
 
 re: fclean all
 
-.PHONY: all clean oclean fclean re
+.PHONY: all clean oclean fclean re check
+
